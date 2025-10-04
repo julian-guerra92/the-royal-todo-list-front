@@ -1,1 +1,46 @@
-<p>todos-handler works!</p>,
+
+<div class="container mx-auto px-4 py-6">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-base-content">My Todos</h1>
+      <p class="text-base-content/70 mt-1">Manage your tasks efficiently</p>
+    </div>
+    <div class="stats shadow">
+      <div class="stat">
+        <div class="stat-title">Total Tasks</div>
+        <div class="stat-value text-primary">{{ todos.length }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <app-todo-card
+      *ngFor="let todo of todos; trackBy: trackByTodoId"
+      [todo]="todo"
+      (onEdit)="openEditTodoModal($event)"
+      (onDelete)="handleTodoDelete($event)">
+    </app-todo-card>
+  </div>
+
+  <div *ngIf="todos.length === 0" class="text-center py-12">
+    <svg class="mx-auto h-12 w-12 text-base-content/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+      </path>
+    </svg>
+    <h3 class="mt-2 text-sm font-medium text-base-content">No todos yet</h3>
+    <p class="mt-1 text-sm text-base-content/60">Get started by creating your first todo.</p>
+  </div>
+</div>
+
+<app-modal-button
+  (buttonClick)="openCreateTodoModal()">
+</app-modal-button>
+
+<app-todo-form
+  [isVisible]="showTodoModal"
+  [existingTodo]="todoToEdit"
+  (onSubmit)="handleTodoSubmit($event)"
+  (onCancel)="closeTodoModal()">
+</app-todo-form>
+

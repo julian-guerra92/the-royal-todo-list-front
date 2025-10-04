@@ -1,0 +1,59 @@
+<div class="card bg-base-100 shadow-xl border border-base-300 hover:shadow-2xl transition-shadow duration-300">
+  <div class="card-body">
+    <div class="flex justify-between items-start mb-3">
+      <h2 class="card-title text-lg font-bold text-base-content line-clamp-2">
+        {{ todo().title }}
+      </h2>
+      <div class="badge badge-outline" [class]="priorityClass()">
+        {{ priorityText() }}
+      </div>
+    </div>
+
+    <p class="text-base-content/80 text-sm line-clamp-3 mb-4">
+      {{ todo().content }}
+    </p>
+
+    <div class="card-actions justify-between items-center">
+      <div class="flex items-center gap-2">
+        <svg class="w-4 h-4 text-base-content/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+          </path>
+        </svg>
+        <span class="text-xs text-base-content/60">{{ formattedDate() }}</span>
+      </div>
+
+      <div class="flex gap-2">
+        <button
+          class="btn btn-sm btn-outline btn-primary"
+          (click)="handleEdit()"
+          title="Edit todo">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+            </path>
+          </svg>
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline btn-error"
+          (click)="handleDelete()"
+          title="Delete todo">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+            </path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="w-full bg-base-300 rounded-full h-1 mt-3">
+      <div
+        class="h-1 rounded-full transition-all duration-300"
+        [class]="priorityClass().replace('badge', 'bg')"
+        [style.width.%]="todo().priority * 10">
+      </div>
+    </div>
+  </div>
+</div>

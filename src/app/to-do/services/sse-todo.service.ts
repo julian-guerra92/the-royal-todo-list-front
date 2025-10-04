@@ -9,7 +9,7 @@ export interface ServerEvent {
 @Injectable({
   providedIn: 'root'
 })
-export class SseService {
+export class SseTodoService {
   private eventSource: EventSource | null = null;
   private eventsSubject = new Subject<ServerEvent>();
   private connectionStatusSubject = new BehaviorSubject<boolean>(false);
