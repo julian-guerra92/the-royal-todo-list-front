@@ -6,7 +6,7 @@ import { TodoItem } from '../../interfaces/TodoItem.interface';
 @Component({
   selector: 'app-todo-form',
   imports: [ReactiveFormsModule, CommonModule],
-  templateUrl: './Todo-form.component.html',
+  templateUrl: './todo-form.component.html',
 })
 export class TodoFormComponent implements OnInit {
   existingTodo = input<TodoItem | null>(null);
@@ -36,7 +36,7 @@ export class TodoFormComponent implements OnInit {
     this.todoForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
       content: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
-      date: ['', Validators.required],
+      scheduledDate: ['', Validators.required],
       priority: [1, [Validators.required, Validators.min(1), Validators.max(10)]]
     });
   }
@@ -47,7 +47,7 @@ export class TodoFormComponent implements OnInit {
       this.todoForm.patchValue({
         title: todo.title,
         content: todo.content,
-        date: todo.date,
+        scheduledDate: this.formatDateForInput(todo.scheduledDate),
         priority: todo.priority
       });
     }
@@ -59,6 +59,7 @@ export class TodoFormComponent implements OnInit {
       const existingTodo = this.existingTodo();
       const todoData: TodoItem = {
         ...formValue,
+        scheduledDate: this.formatDateForBackend(formValue.scheduledDate),
         ...(this.isEditMode() && existingTodo?.id && { id: existingTodo.id })
       };
       this.onSubmit.emit(todoData);
@@ -77,7 +78,7 @@ export class TodoFormComponent implements OnInit {
     this.todoForm.reset({
       title: '',
       content: '',
-      date: '',
+      scheduledDate: '',
       priority: 1
     });
   }
@@ -107,5 +108,15 @@ export class TodoFormComponent implements OnInit {
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  private formatDateForInput(dateString: string): string {
+    if (!dateString) return '';
+    return dateString.split('T')[0];
+  }
+
+  private formatDateForBackend(dateString: string): string {
+    if (!dateString) return '';
+    return `${dateString}T05:00:00.000Z`;
   }
 }

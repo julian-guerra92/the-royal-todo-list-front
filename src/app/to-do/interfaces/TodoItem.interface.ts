@@ -1,7 +1,21 @@
 export interface TodoItem {
-  id?: string;
+  id?: number;
   title: string;
   content: string;
-  date: string;
+  scheduledDate: string;
   priority: number;
+}
+
+export interface CreateTodoRequest {
+  title: string;
+  content: string;
+  scheduledDate: string;
+  priority: number;
+}
+
+export interface UpdateTodoRequest {
+  title?: string;
+  content?: string;
+  scheduledDate?: string;
+  priority?: number;
 }

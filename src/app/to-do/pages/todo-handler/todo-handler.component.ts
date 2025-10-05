@@ -1,82 +1,86 @@
-import { Component, OnInit } from '@angular/core';
-import { TodoFormComponent } from "../../components/Todo-form/Todo-form.component";
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { TodoFormComponent } from "../../components/todo-form/todo-form.component";
 import { ModalButtonComponent } from "../../components/modal-button/modal-button.component";
 import { TodoCardComponent } from "../../components/todo-card/todo-card.component";
-import { TodoItem } from '../../interfaces/TodoItem.interface';
-import { CommonModule } from '@angular/common';
+import { ToastNotificationComponent } from "../../../shared/components/toast-notification/toast-notification.component";
+import { TodoItem, CreateTodoRequest, UpdateTodoRequest } from '../../interfaces/TodoItem.interface';
 import { SseTodoService } from '../../services/sse-todo.service';
+import { TodoService } from '../../services/todo.service';
 
 @Component({
   selector: 'app-todo-handler',
-  imports: [TodoFormComponent, ModalButtonComponent, TodoCardComponent, CommonModule],
+  imports: [TodoFormComponent, ModalButtonComponent, TodoCardComponent, ToastNotificationComponent, CommonModule],
   templateUrl: './todo-handler.component.html',
 })
 export class TodoHandlerComponent implements OnInit {
+  private sseTodoService = inject(SseTodoService);
+  private todoService = inject(TodoService);
 
-  showTodoModal = false;
-  todoToEdit: TodoItem | null = null;
+  showTodoModal = signal(false);
+  todoToEdit = signal<TodoItem | null>(null);
 
-  constructor(private sseTodoService: SseTodoService) { }
+  todos = this.todoService.todos;
+  loading = this.todoService.loading;
 
   ngOnInit(): void {
     this.sseTodoService.connectToAll();
+    this.todoService.loadTodos().subscribe();
   }
 
-  // Example data
-  todos: TodoItem[] = [
-    {
-      id: '1',
-      title: 'Complete Angular project',
-      content: 'Finish the todo list application with all the required features including CRUD operations, modal forms, and responsive design.',
-      date: '2025-10-10',
-      priority: 8
-    },
-    {
-      id: '2',
-      title: 'Review DaisyUI documentation',
-      content: 'Study the latest DaisyUI components and implement them in the current project.',
-      date: '2025-10-08',
-      priority: 5
-    },
-    {
-      id: '3',
-      title: 'Setup CI/CD pipeline',
-      content: 'Configure automated testing and deployment pipeline for the application.',
-      date: '2025-10-15',
-      priority: 3
-    }
-  ];
-
   openCreateTodoModal() {
-    this.todoToEdit = null;
-    this.showTodoModal = true;
+    this.todoToEdit.set(null);
+    this.showTodoModal.set(true);
   }
 
   openEditTodoModal(todo: TodoItem) {
-    this.todoToEdit = todo;
-    this.showTodoModal = true;
+    this.todoToEdit.set(todo);
+    this.showTodoModal.set(true);
   }
 
   handleTodoSubmit(todoData: TodoItem) {
     if (todoData.id) {
-      console.log('Updating todo:', todoData);
+      const updateData: UpdateTodoRequest = {
+        title: todoData.title,
+        content: todoData.content,
+        scheduledDate: todoData.scheduledDate,
+        priority: todoData.priority
+      };
+      this.todoService.updateTodo(todoData.id, updateData).subscribe({
+        next: () => {
+          this.todoService.loadTodos().subscribe();
+        }
+      });
     } else {
-      console.log('Creating new todo:', todoData);
+      const createData: CreateTodoRequest = {
+        title: todoData.title,
+        content: todoData.content,
+        scheduledDate: todoData.scheduledDate,
+        priority: todoData.priority
+      };
+      this.todoService.createTodo(createData).subscribe({
+        next: () => {
+          this.todoService.loadTodos().subscribe();
+        }
+      });
     }
     this.closeTodoModal();
   }
 
   closeTodoModal() {
-    this.showTodoModal = false;
-    this.todoToEdit = null;
+    this.showTodoModal.set(false);
+    this.todoToEdit.set(null);
   }
 
-  handleTodoDelete(todoId: string) {
-    console.log('Deleting todo with ID:', todoId);
-    this.todos = this.todos.filter(todo => todo.id !== todoId);
+  handleTodoDelete(todoId: number) {
+    this.todoService.deleteTodo(todoId).subscribe({
+      next: () => {
+        this.todoService.loadTodos().subscribe();
+      }
+    });
   }
 
   trackByTodoId(index: number, todo: TodoItem): string {
-    return todo.id || index.toString();
+    return todo.id?.toString() || index.toString();
   }
 }

@@ -11,7 +11,7 @@ export class TodoCardComponent {
   todo = input.required<TodoItem>();
 
   onEdit = output<TodoItem>();
-  onDelete = output<string>();
+  onDelete = output<number>();
 
   priorityClass = computed(() => {
     const priority = this.todo().priority;
@@ -28,12 +28,8 @@ export class TodoCardComponent {
   });
 
   formattedDate = computed(() => {
-    const date = new Date(this.todo().date);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    const date = this.todo().scheduledDate.split('T')[0];
+    return date;
   });
 
   handleEdit() {

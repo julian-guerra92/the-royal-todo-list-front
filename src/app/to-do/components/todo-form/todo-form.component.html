@@ -56,18 +56,13 @@
           <div class="relative">
             <input
               type="date"
-              formControlName="date"
-              class="input input-bordered w-full pr-10"
-              [class.input-error]="todoForm.get('date')?.invalid && todoForm.get('date')?.touched"
+              formControlName="scheduledDate"
+              class="input input-bordered w-full pr-5"
+              [class.input-error]="todoForm.get('scheduledDate')?.invalid && todoForm.get('scheduledDate')?.touched"
               [min]="getCurrentDate()">
-            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-              <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
-              </svg>
-            </div>
           </div>
-          <label class="label" *ngIf="getFieldError('date')">
-            <span class="label-text-alt text-error">{{ getFieldError('date') }}</span>
+          <label class="label" *ngIf="getFieldError('scheduledDate')">
+            <span class="label-text-alt text-error">{{ getFieldError('scheduledDate') }}</span>
           </label>
         </div>
 
@@ -98,7 +93,7 @@
             <span>7</span>
             <span>8</span>
             <span>9</span>
-            <span>10</span>
+            <span class="mr-12">10</span>
           </div>
           <label class="label" *ngIf="getFieldError('priority')">
             <span class="label-text-alt text-error">{{ getFieldError('priority') }}</span>
