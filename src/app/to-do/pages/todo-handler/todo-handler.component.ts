@@ -4,13 +4,14 @@ import { TodoFormComponent } from "../../components/todo-form/todo-form.componen
 import { ModalButtonComponent } from "../../components/modal-button/modal-button.component";
 import { TodoCardComponent } from "../../components/todo-card/todo-card.component";
 import { ToastNotificationComponent } from "../../../shared/components/toast-notification/toast-notification.component";
+import { GreatResetAnimationComponent } from "../../components/great-reset-animation/great-reset-animation.component";
 import { TodoItem, CreateTodoRequest, UpdateTodoRequest } from '../../interfaces/TodoItem.interface';
 import { SseTodoService } from '../../services/sse-todo.service';
 import { TodoService } from '../../services/todo.service';
 
 @Component({
   selector: 'app-todo-handler',
-  imports: [TodoFormComponent, ModalButtonComponent, TodoCardComponent, ToastNotificationComponent, CommonModule],
+  imports: [TodoFormComponent, ModalButtonComponent, TodoCardComponent, ToastNotificationComponent, GreatResetAnimationComponent, CommonModule],
   templateUrl: './todo-handler.component.html',
 })
 export class TodoHandlerComponent implements OnInit {
@@ -19,6 +20,8 @@ export class TodoHandlerComponent implements OnInit {
 
   showTodoModal = signal(false);
   todoToEdit = signal<TodoItem | null>(null);
+  showPrimeAnimation = signal(false);
+  primeMessage = signal<string>('');
 
   todos = this.todoService.todos;
   loading = this.todoService.loading;
@@ -26,6 +29,9 @@ export class TodoHandlerComponent implements OnInit {
   ngOnInit(): void {
     this.sseTodoService.connectToAll();
     this.todoService.loadTodos().subscribe();
+    this.sseTodoService.getPrimeResetEvents().subscribe((message) => {
+      this.showPrimeResetAnimation(message);
+    });
   }
 
   openCreateTodoModal() {
@@ -82,5 +88,20 @@ export class TodoHandlerComponent implements OnInit {
 
   trackByTodoId(index: number, todo: TodoItem): string {
     return todo.id?.toString() || index.toString();
+  }
+
+  showPrimeResetAnimation(message: string) {
+    this.primeMessage.set(message);
+    this.showPrimeAnimation.set(true);
+
+    // Auto-ocultar después de 5 segundos
+    setTimeout(() => {
+      this.hidePrimeAnimation();
+    }, 5000);
+  }
+
+  hidePrimeAnimation() {
+    this.showPrimeAnimation.set(false);
+    this.primeMessage.set('');
   }
 }

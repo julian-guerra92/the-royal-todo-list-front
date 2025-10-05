@@ -43,3 +43,10 @@
 </app-todo-form>
 
 <app-toast-notification></app-toast-notification>
+
+<!-- Animación especial para Prime Reset -->
+<app-great-reset-animation
+  [isVisible]="showPrimeAnimation()"
+  [message]="primeMessage()"
+  (onAnimationComplete)="hidePrimeAnimation()">
+</app-great-reset-animation>
