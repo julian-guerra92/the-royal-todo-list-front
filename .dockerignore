@@ -1,0 +1,64 @@
+# Node modules
+node_modules
+npm-debug.log*
+
+# Angular build outputs
+/dist
+/tmp
+/out-tsc
+
+# IDEs and editors
+/.vscode
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Environment files (will be handled separately)
+.env
+.env.local
+.env.development
+.env.production
+
+# Test coverage
+/coverage
+
+# Logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Miscellaneous
+/.angular/cache
+.sass-cache/
+/connect.lock
+/typings
+
+# e2e test outputs
+/e2e/*.js
+/e2e/*.map
+
+# System and cache files
+*.swp
+*.swo
+*~
