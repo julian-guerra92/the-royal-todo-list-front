@@ -1,81 +1,72 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject, BehaviorSubject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { environment } from '../../../environments/environment.development';
+import { SseEvent } from '../interfaces/sse-event.interface';
 
-export interface ServerEvent {
-  message: string;
-  count?: number;
-}
+
+export type SSEEndpoint = 'cron-process/cursed-cleanup' | 'cron-process/great-reset';
+
+const baseUrl = environment.baseUrl;
 
 @Injectable({
   providedIn: 'root'
 })
 export class SseTodoService {
-  private eventSource: EventSource | null = null;
-  private eventsSubject = new Subject<ServerEvent>();
-  private connectionStatusSubject = new BehaviorSubject<boolean>(false);
-  // private eventCountSubject = new BehaviorSubject<number>(0);
+
+  private eventSources = new Map<SSEEndpoint, EventSource>();
+  private eventsSubject = new Subject<SseEvent>();
 
   constructor() {}
 
-  connect(): void {
-    if (this.eventSource) {
-      this.disconnect();
+  connectToEndpoint(endpoint: SSEEndpoint): void {
+    if (this.eventSources.has(endpoint)) {
+      return;
     }
 
-    try {
-      this.eventSource = new EventSource('http://localhost:3000/events'); //TODO: variable de entorno
+    const url = `${baseUrl}/${endpoint}`;
+    const eventSource = new EventSource(url);
 
-      this.eventSource.onopen = () => {
-        console.log('Conexión SSE establecida'); //TODO: eliminar
-        this.connectionStatusSubject.next(true);
-      };
+    eventSource.onmessage = (event: MessageEvent) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log(data);
+        this.eventsSubject.next({
+          ...data,
+          endpoint: endpoint
+        });
+      } catch (error) {
+        console.error(`Error to parser event from SSE of ${endpoint}:`, error);
+      }
+    };
 
-      this.eventSource.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          console.log('Evento recibido:', data);
+    eventSource.onerror = (error: Event) => {
+      console.error(`Error to connection SSE of ${endpoint}:`, error);
+    };
 
-        } catch (error) {
-          console.error('Error al parsear evento SSE:', error);
-        }
-      };
+    this.eventSources.set(endpoint, eventSource);
+  }
 
-      this.eventSource.onerror = (error) => {
-        console.error('Error en conexión SSE:', error);
-        this.connectionStatusSubject.next(false);
-
-        setTimeout(() => {
-          if (this.eventSource?.readyState === EventSource.CLOSED) {
-            console.log('Reintentando conexión SSE...'); //TODO: eliminar
-            this.connect();
-          }
-        }, 5000);
-      };
-
-    } catch (error) {
-      console.error('Error al establecer conexión SSE:', error);
-      this.connectionStatusSubject.next(false);
+  disconnectFromEndpoint(endpoint: SSEEndpoint): void {
+    const eventSource = this.eventSources.get(endpoint);
+    if (eventSource) {
+      eventSource.close();
+      this.eventSources.delete(endpoint);
     }
   }
 
-  disconnect(): void {
-    if (this.eventSource) {
-      this.eventSource.close();
-      this.eventSource = null;
-      this.connectionStatusSubject.next(false);
-      console.log('Conexión SSE cerrada');
-    }
+  connectToAll(): void {
+    this.connectToEndpoint('cron-process/cursed-cleanup');
+    this.connectToEndpoint('cron-process/great-reset');
   }
 
-  getEvents(): Observable<ServerEvent> {
+  disconnectAll(): void {
+    this.eventSources.forEach((eventSource) => {
+      eventSource.close();
+    });
+    this.eventSources.clear();
+  }
+
+  getEvents(): Observable<SseEvent> {
     return this.eventsSubject.asObservable();
-  }
-
-  getConnectionStatus(): Observable<boolean> {
-    return this.connectionStatusSubject.asObservable();
-  }
-
-  isConnected(): boolean {
-    return this.connectionStatusSubject.value;
   }
 }

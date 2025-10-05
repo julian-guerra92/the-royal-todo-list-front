@@ -1,18 +1,26 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TodoFormComponent } from "../../components/Todo-form/Todo-form.component";
 import { ModalButtonComponent } from "../../components/modal-button/modal-button.component";
 import { TodoCardComponent } from "../../components/todo-card/todo-card.component";
 import { TodoItem } from '../../interfaces/TodoItem.interface';
 import { CommonModule } from '@angular/common';
+import { SseTodoService } from '../../services/sse-todo.service';
 
 @Component({
   selector: 'app-todo-handler',
   imports: [TodoFormComponent, ModalButtonComponent, TodoCardComponent, CommonModule],
   templateUrl: './todo-handler.component.html',
 })
-export class TodoHandlerComponent {
+export class TodoHandlerComponent implements OnInit {
+
   showTodoModal = false;
   todoToEdit: TodoItem | null = null;
+
+  constructor(private sseTodoService: SseTodoService) { }
+
+  ngOnInit(): void {
+    this.sseTodoService.connectToAll();
+  }
 
   // Example data
   todos: TodoItem[] = [
